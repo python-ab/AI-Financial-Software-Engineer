@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Software financiero con IA: modelos, automatizaciones y agentes para análisis financiero, mercados, contabilidad y ciencia de datos. Bolivia.">
+<title>AI Financial Software Engineer · Abrahan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Concepto: un documento contable que se vuelve interfaz. Hoja de asientos (Debe/Haber) en el hero, simulador de estrategia como prueba de oficio, tinta azul sobre gris azulado. */
+:root{
+  --bg:#EDF0F4;
+  --surface:#F8F9FB;
+  --fg:#101B2E;
+  --muted:#56627A;
+  --line:#CBD2DE;
+  --accent:#1D3FD1;
+  --on-accent:#FFFFFF;
+  --amber:#9A6200;
+  --pos:#0E7A55;
+  --neg:#B3261E;
+  --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1220;--surface:#131B2E;--fg:#E6EAF3;--muted:#93A0BA;--line:#26324A;
+    --accent:#8CA2FF;--on-accent:#0C1220;--amber:#E3B341;--pos:#3DD6A0;--neg:#FF7A70;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1220;--surface:#131B2E;--fg:#E6EAF3;--muted:#93A0BA;--line:#26324A;
+  --accent:#8CA2FF;--on-accent:#0C1220;--amber:#E3B341;--pos:#3DD6A0;--neg:#FF7A70;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:var(--font-body);font-size:1rem;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.08;letter-spacing:-0.02em}
+p{margin:0}
+ul,ol{margin:0;padding:0;list-style:none}
+.wrap{max-width:1120px;margin-inline:auto;padding-inline:clamp(16px,4vw,32px)}
+.mono{font-family:var(--font-mono)}
+.eyebrow{
+  font-family:var(--font-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);display:block;margin-bottom:14px;
+}
+section{padding-block:clamp(48px,8vw,96px)}
+.sec-head{display:grid;gap:14px;max-width:62ch;margin-bottom:clamp(28px,4vw,48px)}
+.sec-head h2{font-size:clamp(1.65rem,3.4vw,2.4rem);font-weight:700}
+.sec-head p{color:var(--muted)}
+
+/* Navegación */
+.nav{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--bg);border-bottom:1px solid var(--line);
+}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px}
+.brand{font-family:var(--font-display);font-weight:700;font-size:1.05rem;text-decoration:none;white-space:nowrap}
+.brand span{color:var(--muted);font-weight:600}
+.nav ul{display:flex;gap:20px;overflow-x:auto;min-width:0;scrollbar-width:none}
+.nav ul::-webkit-scrollbar{display:none}
+.nav nav{min-width:0}
+.nav a.link{
+  font-size:.875rem;color:var(--muted);text-decoration:none;white-space:nowrap;padding-block:4px;
+  border-bottom:1px solid transparent;
+}
+.nav a.link:hover{color:var(--fg);border-bottom-color:var(--accent)}
+@media (max-width:640px){.brand span{display:none}}
+
+/* Hero */
+.hero{padding-block:clamp(40px,7vw,88px) clamp(48px,7vw,88px)}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:clamp(32px,5vw,64px);align-items:start}
+@media (min-width:920px){.hero-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}}
+.hero h1{font-size:clamp(2.4rem,6vw,4.4rem);font-weight:800;letter-spacing:-0.035em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.lede{margin-top:22px;max-width:52ch;font-size:1.125rem;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.tags li{
+  font-family:var(--font-mono);font-size:.78rem;padding:5px 10px;border:1px solid var(--line);
+  border-radius:4px;background:var(--surface);
+}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--font-body);font-weight:600;font-size:.95rem;
+  padding:11px 18px;border-radius:4px;text-decoration:none;border:1px solid var(--fg);cursor:pointer;
+  background:transparent;color:var(--fg);
+}
+.btn:hover{background:var(--fg);color:var(--bg)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(1.1);background:var(--accent);color:var(--on-accent)}
+.where{margin-top:22px;font-family:var(--font-mono);font-size:.78rem;color:var(--muted)}
+
+/* Hoja de asientos */
+.ledger{background:var(--surface);border:1px solid var(--line);border-radius:6px;min-width:0}
+.ledger-head{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;
+  padding:14px 18px;border-bottom:1px solid var(--line);
+}
+.ledger-head h2{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--muted)}
+.badge-ex{font-family:var(--font-mono);font-size:.7rem;padding:2px 8px;border:1px solid var(--amber);color:var(--amber);border-radius:3px;letter-spacing:.06em;text-transform:uppercase}
+.ledger-input{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.ledger-input label{font-size:.875rem;color:var(--muted)}
+.field{
+  display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:4px;background:var(--bg);
+}
+.field span{padding-inline:10px;font-family:var(--font-mono);font-size:.85rem;color:var(--muted);border-right:1px solid var(--line);align-self:stretch;display:flex;align-items:center}
+.field input{
+  width:9.5rem;border:0;background:transparent;color:var(--fg);font-family:var(--font-mono);font-size:.95rem;
+  padding:8px 10px;font-variant-numeric:tabular-nums;
+}
+.field input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tbl-scroll{overflow-x:auto}
+.ledger table{width:100%;min-width:440px;border-collapse:collapse;font-family:var(--font-mono);font-size:.8125rem;font-variant-numeric:tabular-nums}
+.ledger th{
+  text-align:right;font-weight:500;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  padding:10px 18px;border-bottom:1px solid var(--fg);
+}
+.ledger th:first-child{text-align:left}
+.ledger td{padding:9px 18px;text-align:right;border-bottom:1px solid var(--line)}
+.ledger td:first-child{text-align:left}
+.ledger td:nth-child(2){border-left:1px solid var(--line);border-right:1px solid var(--line);width:26%}
+.ledger th:nth-child(2){border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.ledger td:nth-child(3){width:26%}
+.ledger td.cr{padding-left:36px}
+.ledger tfoot td{border-top:3px double var(--fg);border-bottom:0;font-weight:500;padding-block:11px}
+.ledger-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:13px 18px;border-top:1px solid var(--line)}
+.status{font-family:var(--font-mono);font-size:.8125rem;font-weight:500;color:var(--pos)}
+.status.bad{color:var(--neg)}
+.note{font-size:.78rem;color:var(--muted);padding:0 18px 16px;max-width:60ch}
+
+/* Áreas */
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(28px,4vw,44px) clamp(24px,3vw,40px)}
+.area{border-top:2px solid var(--fg);padding-top:16px;display:grid;gap:10px;align-content:start;min-width:0}
+.area h3{font-size:1.3rem;font-weight:700}
+.area p{color:var(--muted);font-size:.975rem}
+.area .tools{font-family:var(--font-mono);font-size:.76rem;color:var(--fg);line-height:1.7}
+
+/* Simulador */
+.sim{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:clamp(16px,3vw,28px);display:grid;gap:22px;min-width:0}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:18px 28px;align-items:end}
+.ctl{display:grid;gap:6px;min-width:0}
+.ctl label{font-size:.85rem;color:var(--muted);display:flex;justify-content:space-between;gap:10px}
+.ctl output{font-family:var(--font-mono);color:var(--fg);font-variant-numeric:tabular-nums}
+.ctl input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:0;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.metric{padding:12px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 -1px -1px 0;min-width:0}
+.metric dt{font-size:.7rem;font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.metric dd{margin:4px 0 0;font-family:var(--font-mono);font-size:1.25rem;font-weight:500;font-variant-numeric:tabular-nums}
+.pos{color:var(--pos)}.neg{color:var(--neg)}
+.plot{min-width:0}
+.plot canvas{display:block;max-width:100%}
+.cap{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.78rem;color:var(--muted);margin-bottom:8px;font-family:var(--font-mono)}
+.sw{display:inline-flex;align-items:center;gap:6px}
+.sw i{display:inline-block;width:14px;height:3px;background:var(--c);border-radius:1px}
+.sw i.dash{background:repeating-linear-gradient(90deg,var(--c) 0 4px,transparent 4px 7px)}
+.sw i.tri{width:0;height:0;background:none;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--c);border-radius:0}
+.sw i.tri.down{border-bottom:0;border-top:8px solid var(--c)}
+.sim-foot{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;font-size:.8rem;color:var(--muted)}
+.sim-foot p{max-width:64ch}
+
+/* Proceso */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:24px 0}
+.flow li{position:relative;border-top:1px solid var(--fg);padding:18px 18px 0 0;display:grid;gap:6px;align-content:start;min-width:0}
+.flow li::before{content:"";position:absolute;top:-5px;left:0;width:9px;height:9px;background:var(--accent)}
+.flow .n{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);letter-spacing:.1em}
+.flow h3{font-size:1.1rem;font-weight:700}
+.flow p{font-size:.9rem;color:var(--muted)}
+
+/* Stack */
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:32px 40px}
+.stack h3{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;color:var(--muted);margin-bottom:10px}
+.stack li{padding:8px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.stack li small{display:block;color:var(--muted);font-size:.8rem;line-height:1.4}
+
+/* Casos */
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:0 clamp(24px,4vw,56px)}
+.case{padding:22px 0;border-top:1px solid var(--line);display:grid;gap:8px;min-width:0}
+.case h3{font-size:1.2rem;font-weight:700}
+.case p{color:var(--muted);font-size:.95rem}
+.case .out{font-family:var(--font-mono);font-size:.76rem;color:var(--fg)}
+.case .out b{font-weight:500;color:var(--muted)}
+
+/* Contacto */
+.contact{background:var(--fg);color:var(--bg)}
+.contact .eyebrow{color:var(--bg);opacity:.7}
+.contact h2{font-size:clamp(1.9rem,4.4vw,3.2rem);font-weight:800;max-width:20ch}
+.contact p{max-width:54ch;margin-top:18px;opacity:.85}
+.contact-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px;align-items:center}
+.mail{
+  font-family:var(--font-mono);font-size:.95rem;padding:11px 14px;border:1px solid currentColor;border-radius:4px;
+  user-select:all;overflow-wrap:anywhere;min-width:0;
+}
+.contact .btn{border-color:var(--bg);color:var(--bg)}
+.contact .btn:hover{background:var(--bg);color:var(--fg)}
+footer{padding-block:28px;font-size:.78rem;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+footer p{max-width:70ch}
+footer nav{display:flex;flex-wrap:wrap;gap:6px 18px}
+footer a{color:var(--muted);text-underline-offset:3px}
+footer a:hover{color:var(--fg)}
+@media (prefers-reduced-motion:no-preference){
+  .btn,.nav a.link{transition:background-color .15s,color .15s,border-color .15s}
+}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#inicio">Abrahan <span>/ AI Financial Engineer</span></a>
+    <nav aria-label="Secciones">
+      <ul>
+        <li><a class="link" href="#areas">Áreas</a></li>
+        <li><a class="link" href="#simulador">Simulador</a></li>
+        <li><a class="link" href="#proceso">Proceso</a></li>
+        <li><a class="link" href="#stack">Stack</a></li>
+        <li><a class="link" href="#casos">Casos</a></li>
+        <li><a class="link" href="#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="inicio">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">AI Financial Software Engineer</span>
+      <h1>Software financiero que piensa, calcula y <em>cuadra</em>.</h1>
+      <p class="lede">Construyo modelos, automatizaciones y agentes de IA para análisis financiero, mercados y contabilidad. Cada cifra con su origen y cada proceso con su control.</p>
+      <ul class="tags" aria-label="Tecnologías principales">
+        <li>Python</li><li>SQL</li><li>IA generativa</li><li>Series temporales</li><li>NIIF</li><li>Apps Script</li>
+      </ul>
+      <div class="cta-row">
+        <a class="btn primary" href="#simulador">Probar el simulador</a>
+        <a class="btn" href="#casos">Qué construyo</a>
+      </div>
+      <p class="where">Bolivia · Proyectos remotos · Español e inglés</p>
+    </div>
+
+    <div class="ledger" aria-labelledby="ledger-title">
+      <div class="ledger-head">
+        <h2 id="ledger-title">Asiento automático · Venta de servicios</h2>
+        <span class="badge-ex">Ejemplo</span>
+      </div>
+      <div class="ledger-input">
+        <label for="monto">Monto de la venta</label>
+        <span class="field"><span>Bs</span><input id="monto" type="number" inputmode="decimal" min="0" step="100" value="10000"></span>
+      </div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th scope="col">Cuenta</th><th scope="col">Debe</th><th scope="col">Haber</th></tr></thead>
+          <tbody>
+            <tr><td>Bancos</td><td id="d1">10.000,00</td><td></td></tr>
+            <tr><td>Impuesto a las Transacciones (IT)</td><td id="d2">300,00</td><td></td></tr>
+            <tr><td class="cr">Ingresos por servicios</td><td></td><td id="h1">8.700,00</td></tr>
+            <tr><td class="cr">IVA Débito Fiscal</td><td></td><td id="h2">1.300,00</td></tr>
+            <tr><td class="cr">IT por pagar</td><td></td><td id="h3">300,00</td></tr>
+          </tbody>
+          <tfoot><tr><td>Sumas iguales</td><td id="td">10.300,00</td><td id="th">10.300,00</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="ledger-foot">
+        <span class="status" id="status">✓ Cuadra · diferencia 0,00</span>
+        <span class="mono" style="font-size:.75rem;color:var(--muted)">Se recalcula al cambiar el monto</span>
+      </div>
+      <p class="note">Ejemplo ilustrativo con IVA 13 % incluido en el precio e IT 3 % sobre la venta. Verifica siempre las tasas y el tratamiento vigentes antes de aplicarlo.</p>
+    </div>
+  </div>
+</section>
+
+<section id="areas" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Áreas de trabajo</span>
+      <h2>Seis disciplinas, un mismo código base.</h2>
+      <p>Finanzas, contabilidad y datos suelen vivir en herramientas separadas. Yo las conecto en pipelines que se pueden repetir, probar y auditar.</p>
+    </div>
+    <div class="areas">
+      <article class="area">
+        <h3>Ciencia de datos</h3>
+        <p>Limpieza de datos financieros, ingeniería de variables, modelos de series temporales y validación walk-forward para no engañarse con el pasado.</p>
+        <p class="tools">pandas · NumPy · scikit-learn · statsmodels</p>
+      </article>
+      <article class="area">
+        <h3>Análisis financiero</h3>
+        <p>Modelos de flujo de caja, valoración por DCF y WACC, análisis de ratios, escenarios y sensibilidades sobre estados financieros reales.</p>
+        <p class="tools">DCF · WACC · EBITDA · punto de equilibrio</p>
+      </article>
+      <article class="area">
+        <h3>Mercados financieros</h3>
+        <p>Acciones, índices, forex y cripto. Backtesting con costos, gestión de riesgo y métricas que muestran lo que una estrategia realmente aguanta.</p>
+        <p class="tools">OHLCV · Sharpe · drawdown · VaR</p>
+      </article>
+      <article class="area">
+        <h3>Contabilidad y auditoría</h3>
+        <p>Asientos automáticos, conciliaciones, revisión de documentos de proyectos y rendiciones, pruebas de muestreo y papeles de trabajo reproducibles.</p>
+        <p class="tools">NIIF · conciliación bancaria · muestreo · IVA e IT</p>
+      </article>
+      <article class="area">
+        <h3>Automatización</h3>
+        <p>Extracción de datos, procesos programados y reportes que se generan solos. Menos copiar y pegar, más tiempo para decidir.</p>
+        <p class="tools">ETL · APIs REST · Google Sheets · Apps Script</p>
+      </article>
+      <article class="area">
+        <h3>IA y LLMs</h3>
+        <p>Agentes que leen facturas, contratos y normativa, extraen datos estructurados y dejan la decisión final a una persona con la evidencia a la vista.</p>
+        <p class="tools">RAG · extracción estructurada · OCR · agentes</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="simulador" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Demostración</span>
+      <h2>Cruce de medias móviles, con las comisiones a la vista.</h2>
+      <p>Una estrategia simple sobre precios sintéticos. Mueve las ventanas, cambia de escenario y observa cuánto del resultado depende de un parámetro.</p>
+    </div>
+    <div class="sim">
+      <div class="controls">
+        <div class="ctl">
+          <label for="fast">Media rápida <output id="fastOut" for="fast">10 días</output></label>
+          <input id="fast" type="range" min="5" max="40" step="1" value="10">
+        </div>
+        <div class="ctl">
+          <label for="slow">Media lenta <output id="slowOut" for="slow">50 días</output></label>
+          <input id="slow" type="range" min="20" max="120" step="1" value="50">
+        </div>
+        <div class="ctl">
+          <label for="fee">Costo por operación <output id="feeOut" for="fee">0,10 %</output></label>
+          <input id="fee" type="range" min="0" max="100" step="5" value="10">
+        </div>
+        <div class="ctl">
+          <button class="btn" id="reroll" type="button">Nuevo escenario</button>
+        </div>
+      </div>
+
+      <dl class="metrics" id="metrics">
+        <div class="metric"><dt>Estrategia</dt><dd id="m-ret">—</dd></div>
+        <div class="metric"><dt>Comprar y mantener</dt><dd id="m-bh">—</dd></div>
+        <div class="metric"><dt>Caída máxima</dt><dd id="m-dd" class="neg">—</dd></div>
+        <div class="metric"><dt>Sharpe anual</dt><dd id="m-sh">—</dd></div>
+        <div class="metric"><dt>Cambios de posición</dt><dd id="m-tr">—</dd></div>
+      </dl>
+
+      <div class="plot">
+        <div class="cap">
+          <span class="sw" style="--c:var(--fg)"><i></i>Precio</span>
+          <span class="sw" style="--c:var(--accent)"><i></i><span id="lgFast">Media 10</span></span>
+          <span class="sw" style="--c:var(--amber)"><i class="dash"></i><span id="lgSlow">Media 50</span></span>
+          <span class="sw" style="--c:var(--pos)"><i class="tri"></i>Compra</span>
+          <span class="sw" style="--c:var(--neg)"><i class="tri down"></i>Venta</span>
+        </div>
+        <canvas id="cvPrice" role="img" aria-label="Precio sintético con medias móviles y señales"></canvas>
+      </div>
+      <div class="plot">
+        <div class="cap">
+          <span class="sw" style="--c:var(--accent)"><i></i>Estrategia (base 100)</span>
+          <span class="sw" style="--c:var(--muted)"><i></i>Comprar y mantener</span>
+          <span style="margin-left:auto">Eje horizontal: días de negociación</span>
+        </div>
+        <canvas id="cvEq" role="img" aria-label="Curva de capital de la estrategia frente a comprar y mantener"></canvas>
+      </div>
+
+      <div class="sim-foot">
+        <p>Datos sintéticos generados con un paso aleatorio y regímenes de tendencia y volatilidad. La señal usa el cierre del día anterior para evitar sesgo de anticipación. No es una recomendación de inversión.</p>
+        <span class="mono" id="scenarioLbl">Escenario 1 de 6</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="proceso" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Cómo trabajo</span>
+      <h2>Del dato crudo al reporte, con un control en cada paso.</h2>
+    </div>
+    <ol class="flow">
+      <li><span class="n">PASO 1</span><h3>Fuente</h3><p>Banco, ERP, exchange, planilla o PDF. Se documenta de dónde sale cada cifra.</p></li>
+      <li><span class="n">PASO 2</span><h3>Extracción y limpieza</h3><p>Formatos unificados, duplicados detectados y valores atípicos marcados.</p></li>
+      <li><span class="n">PASO 3</span><h3>Modelo o regla</h3><p>Regla contable, modelo estadístico o agente de IA, según lo que pide el problema.</p></li>
+      <li><span class="n">PASO 4</span><h3>Validación</h3><p>Cuadre de sumas, pruebas automáticas, backtest fuera de muestra y revisión humana.</p></li>
+      <li><span class="n">PASO 5</span><h3>Reporte automático</h3><p>Hoja, tablero o documento que se actualiza solo y conserva su rastro de auditoría.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="stack" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Herramientas</span>
+      <h2>Stack para datos, finanzas e IA.</h2>
+    </div>
+    <div class="stack">
+      <div>
+        <h3>Lenguajes</h3>
+        <ul>
+          <li>Python<small>Análisis, modelos y automatización</small></li>
+          <li>SQL<small>Consultas y modelado de datos</small></li>
+          <li>JavaScript y TypeScript<small>Interfaces, APIs y Apps Script</small></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Datos y modelos</h3>
+        <ul>
+          <li>pandas · NumPy · Polars<small>Manipulación de datos tabulares</small></li>
+          <li>scikit-learn · statsmodels<small>Regresión, clasificación, series temporales</small></li>
+          <li>PostgreSQL · SQLite<small>Almacenamiento y consultas</small></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Finanzas</h3>
+        <ul>
+          <li>Backtesting propio<small>Costos, deslizamiento y validación</small></li>
+          <li>Datos de mercado vía API<small>Acciones, índices, forex y cripto</small></li>
+          <li>Excel y Google Sheets<small>Modelos que otros pueden revisar</small></li>
+        </ul>
+      </div>
+      <div>
+        <h3>IA y automatización</h3>
+        <ul>
+          <li>APIs de LLM<small>Agentes con herramientas y salida estructurada</small></li>
+          <li>RAG y embeddings<small>Consulta sobre normativa y documentos</small></li>
+          <li>Tareas programadas<small>Cron, GitHub Actions, Apps Script</small></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="casos" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Qué construyo</span>
+      <h2>Casos donde el software ahorra horas y reduce errores.</h2>
+      <p>Tipos de proyecto que puedo diseñar y entregar de principio a fin.</p>
+    </div>
+    <div class="cases">
+      <article class="case">
+        <h3>Conciliación bancaria automática</h3>
+        <p>Cruza extractos del banco con el libro mayor, propone coincidencias y deja solo las excepciones para revisión.</p>
+        <p class="out"><b>Entrega ·</b> reporte de partidas conciliadas y pendientes</p>
+      </article>
+      <article class="case">
+        <h3>Modelo de flujo de caja a 13 semanas</h3>
+        <p>Proyección de ingresos y egresos con escenarios, alertas de liquidez y supuestos editables.</p>
+        <p class="out"><b>Entrega ·</b> hoja de cálculo con escenarios y gráficos</p>
+      </article>
+      <article class="case">
+        <h3>Laboratorio de estrategias de trading</h3>
+        <p>Backtesting con costos reales, validación fuera de muestra y métricas de riesgo antes de arriesgar capital.</p>
+        <p class="out"><b>Entrega ·</b> informe de métricas y código reproducible</p>
+      </article>
+      <article class="case">
+        <h3>Revisión asistida de rendiciones de proyectos</h3>
+        <p>Un agente de IA lee facturas y soportes, extrae montos y fechas, y marca inconsistencias para el auditor.</p>
+        <p class="out"><b>Entrega ·</b> tabla de hallazgos con referencia al documento</p>
+      </article>
+      <article class="case">
+        <h3>Tablero financiero para un negocio</h3>
+        <p>Ventas, márgenes, costos y punto de equilibrio actualizados desde las fuentes, sin armar planillas a mano.</p>
+        <p class="out"><b>Entrega ·</b> tablero web con actualización programada</p>
+      </article>
+      <article class="case">
+        <h3>Aplicación de tareas y seguimiento</h3>
+        <p>Planificación y control de actividades sobre Google Sheets y Apps Script, con acceso desde el celular.</p>
+        <p class="out"><b>Entrega ·</b> aplicación web instalable</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contacto">
+  <div class="wrap">
+    <span class="eyebrow">Contacto</span>
+    <h2>Cuéntame qué proceso hoy se hace a mano.</h2>
+    <p>Si tus cifras viven en cinco planillas distintas, lo convierto en un flujo que corre solo y que se puede auditar. Escríbeme con el contexto y los datos que tienes.</p>
+    <div class="contact-row">
+      <span class="mail" id="mail">abrahanrodrigueza@gmail.com</span>
+      <button class="btn" id="copyMail" type="button">Copiar correo</button>
+      <a class="btn" href="mailto:abrahanrodrigueza@gmail.com">Escribir un correo</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Los datos del simulador son sintéticos y los ejemplos contables son ilustrativos. El contenido es informativo y no constituye asesoría financiera, contable ni de inversión.</p>
+    <nav aria-label="Legal"><a href="privacy.html">Política de privacidad</a><a href="datos.html">Eliminación de datos</a></nav>
+    <span class="mono">Abrahan · Bolivia</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var nf2 = new Intl.NumberFormat('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2});
+  var nf1 = new Intl.NumberFormat('es-BO',{minimumFractionDigits:1,maximumFractionDigits:1});
+  function r2(x){ return Math.round(x*100)/100; }
+
+  /* ---------- Asiento automático ---------- */
+  function ledger(){
+    var m = parseFloat($('monto').value);
+    if(!isFinite(m) || m < 0) m = 0;
+    m = r2(m);
+    var iva = r2(m*0.13);
+    var it  = r2(m*0.03);
+    var ing = r2(m - iva);
+    var debe = r2(m + it);
+    var haber = r2(ing + iva + it);
+    var diff = r2(debe - haber);
+    $('d1').textContent = nf2.format(m);
+    $('d2').textContent = nf2.format(it);
+    $('h1').textContent = nf2.format(ing);
+    $('h2').textContent = nf2.format(iva);
+    $('h3').textContent = nf2.format(it);
+    $('td').textContent = nf2.format(debe);
+    $('th').textContent = nf2.format(haber);
+    var st = $('status');
+    if(diff === 0){ st.textContent = '✓ Cuadra · diferencia 0,00'; st.className = 'status'; }
+    else { st.textContent = '✗ No cuadra · diferencia ' + nf2.format(diff); st.className = 'status bad'; }
+  }
+  $('monto').addEventListener('input', ledger);
+
+  /* ---------- Simulador ---------- */
+  var SEEDS = [42, 7, 2026, 314, 99, 21];
+  var seedIdx = 0;
+  var N = 300;
+  var data = null;
+
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function gauss(r){
+    var u = 0, v = 0;
+    while(u === 0) u = r();
+    while(v === 0) v = r();
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  }
+  function makeSeries(seed, n){
+    var r = mulberry32(seed);
+    var p = 100, drift = 0.0004, vol = 0.012;
+    var out = [p];
+    for(var i = 1; i < n; i++){
+      if(i % 90 === 0){ drift = (r() - 0.45) * 0.0025; vol = 0.008 + r() * 0.012; }
+      p = p * Math.exp(drift - 0.5*vol*vol + vol*gauss(r));
+      out.push(p);
+    }
+    return out;
+  }
+  function sma(arr, w){
+    var out = new Array(arr.length).fill(null), sum = 0;
+    for(var i = 0; i < arr.length; i++){
+      sum += arr[i];
+      if(i >= w) sum -= arr[i-w];
+      if(i >= w-1) out[i] = sum / w;
+    }
+    return out;
+  }
+  function backtest(prices, wf, ws, fee){
+    var n = prices.length;
+    var f = sma(prices, wf), s = sma(prices, ws);
+    var st = ws - 1;
+    var eq = new Array(n).fill(null), bh = new Array(n).fill(null);
+    eq[st] = 100; bh[st] = 100;
+    var prev = 0, changes = 0, marks = [], rets = [];
+    var peak = 100, mdd = 0;
+    for(var i = st + 1; i < n; i++){
+      var pos = f[i-1] > s[i-1] ? 1 : 0;
+      var rr = prices[i] / prices[i-1] - 1;
+      var cost = 0;
+      if(pos !== prev){
+        changes++;
+        cost = fee;
+        marks.push({i: i-1, buy: pos === 1});
+        prev = pos;
+      }
+      var sr = pos * rr - cost;
+      rets.push(sr);
+      eq[i] = eq[i-1] * (1 + sr);
+      bh[i] = bh[i-1] * (1 + rr);
+      if(eq[i] > peak) peak = eq[i];
+      var dd = eq[i] / peak - 1;
+      if(dd < mdd) mdd = dd;
+    }
+    var mean = 0; rets.forEach(function(x){ mean += x; }); mean /= rets.length;
+    var varr = 0; rets.forEach(function(x){ varr += (x-mean)*(x-mean); }); varr /= (rets.length - 1);
+    var sd = Math.sqrt(varr);
+    return {
+      f: f, s: s, eq: eq, bh: bh, marks: marks, start: st,
+      ret: eq[n-1]/100 - 1, bhRet: bh[n-1]/100 - 1, mdd: mdd, changes: changes,
+      sharpe: sd > 0 ? (mean / sd) * Math.sqrt(252) : null
+    };
+  }
+
+  function tok(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function prep(cv, h){
+    var dpr = window.devicePixelRatio || 1;
+    var w = Math.max(240, cv.parentElement.clientWidth);
+    cv.style.width = w + 'px'; cv.style.height = h + 'px';
+    cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,w,h);
+    return {c:c, w:w, h:h};
+  }
+  function niceTicks(min, max, n){
+    var span = max - min, raw = span / n;
+    var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var f = raw / mag;
+    var step = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag;
+    var t = [];
+    for(var v = Math.ceil(min/step)*step; v <= max + 1e-9; v += step) t.push(v);
+    return t;
+  }
+  function panel(cv, h, lines, opts){
+    var P = prep(cv, h), c = P.c, w = P.w;
+    var L = 46, R = 14, T = 10, B = 24;
+    var fg = tok('--fg'), muted = tok('--muted'), line = tok('--line');
+    var lo = Infinity, hi = -Infinity;
+    lines.forEach(function(l){ l.data.forEach(function(v){ if(v !== null){ if(v < lo) lo = v; if(v > hi) hi = v; } }); });
+    var pad = (hi - lo) * 0.05; lo -= pad; hi += pad;
+    function X(i){ return L + i * (w - L - R) / (N - 1); }
+    function Y(v){ return T + (hi - v) * (h - T - B) / (hi - lo); }
+    c.font = '11px "IBM Plex Mono", ui-monospace, monospace';
+    c.textBaseline = 'middle'; c.textAlign = 'right';
+    c.lineWidth = 1;
+    niceTicks(lo, hi, 4).forEach(function(v){
+      var y = Math.round(Y(v)) + 0.5;
+      c.strokeStyle = line; c.beginPath(); c.moveTo(L, y); c.lineTo(w - R, y); c.stroke();
+      c.fillStyle = muted; c.fillText(opts.fmt(v), L - 7, y);
+    });
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    for(var d = 0; d < N; d += 50){
+      var x = Math.round(X(d)) + 0.5;
+      c.strokeStyle = line; c.beginPath(); c.moveTo(x, h - B); c.lineTo(x, h - B + 4); c.stroke();
+      c.fillStyle = muted; c.fillText(String(d), x, h - B + 7);
+    }
+    lines.forEach(function(l){
+      c.strokeStyle = tok(l.color); c.lineWidth = l.width; c.setLineDash(l.dash || []);
+      c.beginPath();
+      var started = false;
+      l.data.forEach(function(v, i){
+        if(v === null) return;
+        if(!started){ c.moveTo(X(i), Y(v)); started = true; } else c.lineTo(X(i), Y(v));
+      });
+      c.stroke(); c.setLineDash([]);
+      if(l.dot){
+        var last = l.data.length - 1;
+        c.fillStyle = tok(l.color);
+        c.beginPath(); c.arc(X(last), Y(l.data[last]), 3.5, 0, Math.PI*2); c.fill();
+      }
+    });
+    if(opts.marks){
+      opts.marks.forEach(function(m){
+        var px = X(m.i), py = Y(opts.prices[m.i]);
+        c.fillStyle = tok(m.buy ? '--pos' : '--neg');
+        c.beginPath();
+        if(m.buy){ var y0 = py + 14; c.moveTo(px, y0 - 8); c.lineTo(px - 5, y0); c.lineTo(px + 5, y0); }
+        else { var y1 = py - 14; c.moveTo(px, y1 + 8); c.lineTo(px - 5, y1); c.lineTo(px + 5, y1); }
+        c.closePath(); c.fill();
+      });
+    }
+  }
+
+  function pct(v){ return (v >= 0 ? '+' : '−') + nf1.format(Math.abs(v)*100) + ' %'; }
+
+  function run(){
+    var wf = +$('fast').value, ws = +$('slow').value, fee = +$('fee').value / 10000;
+    $('fastOut').textContent = wf + ' días';
+    $('slowOut').textContent = ws + ' días';
+    $('feeOut').textContent = nf2.format(fee*100) + ' %';
+    $('lgFast').textContent = 'Media ' + wf;
+    $('lgSlow').textContent = 'Media ' + ws;
+    $('scenarioLbl').textContent = 'Escenario ' + (seedIdx + 1) + ' de ' + SEEDS.length;
+    var prices = data;
+    var bt = backtest(prices, wf, ws, fee);
+
+    var re = $('m-ret'); re.textContent = pct(bt.ret); re.className = bt.ret >= 0 ? 'pos' : 'neg';
+    var rb = $('m-bh'); rb.textContent = pct(bt.bhRet); rb.className = bt.bhRet >= 0 ? 'pos' : 'neg';
+    $('m-dd').textContent = '−' + nf1.format(Math.abs(bt.mdd)*100) + ' %';
+    $('m-sh').textContent = bt.sharpe === null ? '—' : nf2.format(bt.sharpe);
+    $('m-tr').textContent = String(bt.changes);
+
+    var ph = window.innerWidth < 560 ? 230 : 280;
+    var eh = window.innerWidth < 560 ? 170 : 200;
+    panel($('cvPrice'), ph, [
+      {data: prices, color:'--fg', width:1.4},
+      {data: bt.s, color:'--amber', width:1.6, dash:[5,4]},
+      {data: bt.f, color:'--accent', width:1.8}
+    ], {fmt:function(v){ return nf1.format(v).replace(/,0$/,''); }, marks: bt.marks, prices: prices});
+    panel($('cvEq'), eh, [
+      {data: bt.bh, color:'--muted', width:1.4, dot:true},
+      {data: bt.eq, color:'--accent', width:2, dot:true}
+    ], {fmt:function(v){ return nf1.format(v).replace(/,0$/,''); }});
+    $('cvPrice').setAttribute('aria-label', 'Precio sintético con medias de ' + wf + ' y ' + ws + ' días, ' + bt.changes + ' cambios de posición');
+    $('cvEq').setAttribute('aria-label', 'Estrategia ' + pct(bt.ret) + ' frente a comprar y mantener ' + pct(bt.bhRet));
+  }
+
+  $('fast').addEventListener('input', function(){
+    var f = +$('fast').value;
+    if(f >= +$('slow').value) $('slow').value = Math.min(120, f + 5);
+    run();
+  });
+  $('slow').addEventListener('input', function(){
+    var s = +$('slow').value;
+    if(s <= +$('fast').value) $('fast').value = Math.max(5, s - 5);
+    run();
+  });
+  $('fee').addEventListener('input', run);
+  $('reroll').addEventListener('click', function(){
+    seedIdx = (seedIdx + 1) % SEEDS.length;
+    data = makeSeries(SEEDS[seedIdx], N);
+    run();
+  });
+
+  var resizeTimer = null;
+  window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(run, 80); });
+  if(window.matchMedia){
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if(mq.addEventListener) mq.addEventListener('change', run);
+  }
+  new MutationObserver(run).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+
+  /* ---------- Copiar correo ---------- */
+  $('copyMail').addEventListener('click', function(){
+    var btn = $('copyMail'), txt = $('mail').textContent;
+    function done(){ btn.textContent = 'Copiado'; setTimeout(function(){ btn.textContent = 'Copiar correo'; }, 1600); }
+    function fallback(){
+      var range = document.createRange(); range.selectNodeContents($('mail'));
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      btn.textContent = 'Selecciona y copia';
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done, fallback);
+    } else fallback();
+  });
+
+  data = makeSeries(SEEDS[0], N);
+  ledger();
+  run();
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+})();
+</script>
+</body>
+</html>
